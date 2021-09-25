@@ -1,6 +1,6 @@
 import axios from "axios";
 
-let DEV = true;
+let DEV = false;
 
 const AxiosInstance = () => {
   const instance = axios.create({
