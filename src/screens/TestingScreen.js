@@ -141,7 +141,7 @@ export default function TestingScreen() {
           style={{
             overflowY: "auto",
             padding: 10,
-            height: 875,
+            height: document.documentElement.clientHeight,
           }}
         >
           <>
