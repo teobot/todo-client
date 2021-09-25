@@ -23,6 +23,8 @@ import {
 import MenuListItem from "../components/MenuListItem";
 import TodoSegment from "../components/TodoSegment";
 
+import TestingScreen from "./TestingScreen";
+
 import { useHistory } from "react-router";
 
 import {
@@ -64,6 +66,7 @@ export default function MainScreen() {
     try {
       const todos = await getTodos();
       setTodoData(todos.data);
+      console.log(todos.data);
     } catch (error) {
       // TODO: handle error
     }
@@ -94,6 +97,8 @@ export default function MainScreen() {
     // TODO
     return <div>Loading...</div>;
   }
+
+  return <TestingScreen d={todoData}/>
 
   return (
     <Grid

@@ -8,6 +8,7 @@ import "./css/index.css";
 import "semantic-ui-css/semantic.min.css";
 
 import MainScreen from "./screens/MainScreen";
+import TestingScreen from "./screens/TestingScreen";
 import LoginScreen from "./screens/LoginScreen";
 import CreateAccountScreen from "./screens/CreateAccountScreen";
 
@@ -27,7 +28,8 @@ const App = () => {
         </Route>
         <Route path="/">
           <SideBarContext.Provider value={SideBarValues}>
-            <MainScreen />
+            <TestingScreen />
+            {/* <MainScreen /> */}
           </SideBarContext.Provider>
           {SideBarSegment}
         </Route>

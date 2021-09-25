@@ -36,15 +36,15 @@ export const createAccount = async (username, password) => {
   }
 };
 
-export const postNewTodo = async (todoText) => {
+export const postNewTodo = async (todoText, listId) => {
   // post a new todo
   try {
     const res = await api.request({
       url: "/todo/create",
       method: "post",
-      data: { text: todoText },
+      data: { todoText, listId },
     });
-    return { success: true, data: res.data };
+    return { success: res.data.success, data: res.data.data };
   } catch (error) {
     return { success: false, message: error.message };
   }
@@ -84,7 +84,7 @@ export const deleteTodo = async (todoListId, todoItemId) => {
       method: "delete",
       data: { todoListId, todoItemId },
     });
-    return { success: true, data: res.data };
+    return { success: res.data.success, data: res.data.data };
   } catch (error) {
     return { success: false, message: error.message };
   }
@@ -98,7 +98,7 @@ export const markTodoAsComplete = async (todoListId, todoItemId) => {
       method: "patch",
       data: { todoListId, todoItemId },
     });
-    return { success: true, data: res.data };
+    return { success: res.data.success, data: res.data.data };
   } catch (error) {
     return { success: false, message: error.message };
   }
@@ -112,7 +112,7 @@ export const editTodo = async (todoListId, todoItemId, text) => {
       method: "patch",
       data: { todoListId, todoItemId, text },
     });
-    return { success: true, data: res.data };
+    return { success: true, data: res.data.data };
   } catch (error) {
     return { success: false, message: error.message };
   }
@@ -131,11 +131,36 @@ export const getServer = async () => {
   }
 };
 
+export const createList = async (listTitle) => {
+  try {
+    const res = await api.request({
+      url: "/list/create",
+      method: "post",
+      data: { listTitle },
+    });
+    return { success: res.data.success, data: res.data.data };
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+};
+
 export const checkLocalStorageToken = async (token) => {
   // check the local storage for token
   try {
     api.defaults.headers.common["Authorization"] = "Bearer " + token;
+  } catch (error) {}
+};
+
+export const deleteList = async (listId) => {
+  try {
+    // try to delete list
+    const res = await api.request({
+      url: "/list/delete",
+      method: "delete",
+      data: { listId },
+    });
+    return { success: res.data.success, data: res.data.data };
   } catch (error) {
-    
+    return { success: false, message: error.message };
   }
-}
+};
