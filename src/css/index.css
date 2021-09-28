@@ -7,3 +7,12 @@ body,
   margin: 0;
   padding: 0;
 }
+
+
+.settingTextArea,
+.settingInput input,
+.settingDropdown.ui.selection.dropdown,
+.settingDropdown .item {
+  background-color: #262a33 !important;
+  color: white !important;
+}

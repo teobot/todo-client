@@ -28,8 +28,7 @@ const App = () => {
         </Route>
         <Route path="/">
           <SideBarContext.Provider value={SideBarValues}>
-            <TestingScreen />
-            {/* <MainScreen /> */}
+            <MainScreen />
           </SideBarContext.Provider>
           {SideBarSegment}
         </Route>
