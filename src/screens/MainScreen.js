@@ -3,18 +3,13 @@ import { createContext } from "react";
 import "../css/App.css";
 
 import {
-  Container,
   Grid,
-  Checkbox,
-  Sidebar,
   Segment,
   Menu,
   Icon,
   Header,
-  Image,
-  List,
-  Label,
-  Divider,
+  Loader,
+  Button,
   Input,
 } from "semantic-ui-react";
 
@@ -22,6 +17,7 @@ import TodoSegment from "../components/TodoSegment";
 
 import MainController from "../controllers/MainScreen.controller";
 import MenuListItem from "../components/MenuListItem";
+import { useHistory } from "react-router";
 
 export const TodoContext = createContext();
 
@@ -43,8 +39,14 @@ export default function MainScreen() {
     isLoading,
   } = MainController();
 
+  let history = useHistory();
+
   if (isLoading || !todoData) {
-    return <div>Loading</div>;
+    return (
+      <div className="h-100 w-100">
+        <Loader />
+      </div>
+    );
   } else {
     return (
       <TodoContext.Provider
@@ -65,6 +67,17 @@ export default function MainScreen() {
               className="w-100 h-100 b-0"
               style={{ backgroundColor: "#242426" }}
             >
+              <Menu.Item>
+                <Button
+                  onClick={() => {
+                    localStorage.removeItem("token");
+                    history.push("/login");
+                  }}
+                  primary
+                >
+                  logout
+                </Button>
+              </Menu.Item>
               <MenuListItem
                 id={listId}
                 setListId={setListId}
@@ -72,7 +85,6 @@ export default function MainScreen() {
                 text={"All"}
                 subText={countTodos()}
                 icon="list"
-                color="red"
               />
 
               <Menu.Item>
