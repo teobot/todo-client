@@ -9,3 +9,6 @@ client for the todo app
 
 ## Resources
 - https://date-fns.org/docs/Getting-Started
+
+## Issues
+- Look into why when typing in a new list name, all todo items re-render

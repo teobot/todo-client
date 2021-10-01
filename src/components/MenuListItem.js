@@ -2,7 +2,19 @@ import React from "react";
 
 import { Icon } from "semantic-ui-react";
 
-export default function MenuListItem({ id, setId, itemId, text, subText, icon }) {
+export default function MenuListItem({
+  id,
+  setListId,
+  itemId,
+  text,
+  subText,
+  icon,
+  color
+}) {
+  const isSelected = itemId === id;
+
+  const colorStyle = color ? color : "#6372B0"
+
   return (
     <div
       style={{
@@ -11,17 +23,18 @@ export default function MenuListItem({ id, setId, itemId, text, subText, icon })
         height: 50,
         padding: "5px",
         width: "100%",
-        ...(itemId === id ? { backgroundColor: "#28282B" } : {}),
+        ...(isSelected ? { backgroundColor: "#28282B" } : {}),
         cursor: "pointer",
       }}
       onClick={() => {
-        setId(itemId);
+        setListId(itemId);
       }}
     >
       <div
         style={{
           display: "flex",
           flex: 1,
+          ...(isSelected ? { borderLeft: `3px solid ${colorStyle}` } : {}),
         }}
       />
       <div
@@ -32,7 +45,12 @@ export default function MenuListItem({ id, setId, itemId, text, subText, icon })
           alignItems: "center",
         }}
       >
-        <Icon fitted size="big" color="red" name={icon} />
+        <Icon
+          fitted
+          size="large"
+          style={{ color: isSelected ? "#6372B0" : "#6E7981" }}
+          name={icon}
+        />
       </div>
       <div
         style={{
@@ -47,9 +65,7 @@ export default function MenuListItem({ id, setId, itemId, text, subText, icon })
           alignItems: "center",
         }}
       >
-        <span style={{ color: "white", fontWeight: "bold", fontSize: 17 }}>
-          {text}
-        </span>
+        <span style={{ color: "#CBCBCB", fontSize: 16 }}>{text}</span>
       </div>
       <div
         style={{

@@ -1,8 +1,6 @@
-import { useState, useEffect } from "react";
+import { createContext } from "react";
 
 import "../css/App.css";
-
-import { format, formatDistance, formatRelative, subDays } from "date-fns";
 
 import {
   Container,
@@ -20,333 +18,168 @@ import {
   Input,
 } from "semantic-ui-react";
 
-import MenuListItem from "../components/MenuListItem";
 import TodoSegment from "../components/TodoSegment";
 
-import TestingScreen from "./TestingScreen";
+import MainController from "../controllers/MainScreen.controller";
+import MenuListItem from "../components/MenuListItem";
 
-import { useHistory } from "react-router";
-
-import {
-  createList,
-  postNewTodo,
-  markTodoAsComplete,
-  deleteList,
-  editTodo,
-  checkLocalStorageToken,
-  getTodos,
-  deleteTodo,
-} from "../controllers/Api.controller";
-
-import { formatDateToText } from "../functions/general.functions";
+export const TodoContext = createContext();
 
 export default function MainScreen() {
-  const [todoData, setTodoData] = useState(null);
-  const [listTitle, setListTitle] = useState("");
-  const [listId, setListId] = useState(null);
-  const [todoText, setTodoText] = useState("");
+  const {
+    todoData,
+    listTitle,
+    setListTitle,
+    listId,
+    setListId,
+    todoText,
+    setTodoText,
+    createListSubmit,
+    toggleComplete,
+    handleListDelete,
+    handleTodoDelete,
+    countTodos,
+    handleTodoSubmit,
+    isLoading,
+  } = MainController();
 
-  let history = useHistory();
-
-  useEffect(() => {
-    checkLoggedIn();
-  }, []);
-
-  const checkLoggedIn = async () => {
-    try {
-      // check if localstorage has a token
-      const token = await localStorage.getItem("token");
-      if (!token) {
-        // if not, redirect to login
-        history.push("/login");
-      } else {
-        await checkLocalStorageToken(token);
-        await getData();
-      }
-    } catch (error) {
-      history.push("/login");
-    }
-  };
-
-  const getData = async () => {
-    try {
-      const todos = await getTodos();
-      setTodoData(todos.data);
-      console.log(todos.data);
-    } catch (error) {
-      // : handle error
-    }
-  };
-
-  const createListSubmit = async () => {
-    try {
-      const res = await createList(listTitle);
-      setTodoData(res.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const createTodoItem = async (todoText, listId) => {
-    if (todoText.length <= 0) {
-      return;
-    }
-    try {
-      const res = await postNewTodo(todoText, listId);
-      setTodoData(res.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const toggleComplete = async (todoListId, todoItemId) => {
-    try {
-      const res = await markTodoAsComplete(todoListId, todoItemId);
-      setTodoData(res.data);
-    } catch (error) {}
-  };
-
-  const handleListDelete = async (listId) => {
-    try {
-      // delete the given list
-      const res = await deleteList(listId);
-      setTodoData(res.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleTodoDelete = async (todoListId, todoItemId) => {
-    try {
-      // handle delete a todo
-      const res = await deleteTodo(todoListId, todoItemId);
-      setTodoData(res.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const countTodos = () => {
-    let c = 0;
-    for (let i = 0; i < todoData.todos.length; i++) {
-      c += todoData.todos[i].items.length;
-    }
-    return c;
-  };
-
-  const handleTodoSubmit = () => {};
-
-  if (!todoData) {
+  if (isLoading || !todoData) {
     return <div>Loading</div>;
   } else {
     return (
-      <Grid
-        style={{
-          height: "100%",
-          margin: 0,
-          backgroundImage: "linear-gradient(#667EEA, #764BA2)",
+      <TodoContext.Provider
+        value={{
+          toggleComplete,
+          setListId,
         }}
       >
-        <Grid.Column width={3}>
-          <Menu vertical inverted style={{ height: "100%", width: "100%" }}>
-            <Menu.Item
-              onClick={() => {
-                setListId(null);
-              }}
-              active={!listId}
-              name="all"
-              link
+        <Grid
+          className="h-100 w-100 p-0"
+          style={{
+            margin: 0,
+          }}
+        >
+          <Grid.Column width={3} className="h-100 p-0 b-0">
+            <Menu
+              vertical
+              className="w-100 h-100 b-0"
+              style={{ backgroundColor: "#242426" }}
             >
-              <Label color="teal">{countTodos()}</Label>
-              All
-            </Menu.Item>
+              <MenuListItem
+                id={listId}
+                setListId={setListId}
+                itemId={null}
+                text={"All"}
+                subText={countTodos()}
+                icon="list"
+                color="red"
+              />
 
-            <Menu.Item>
-              <Input
-                className="settingInput"
-                value={listTitle}
-                onChange={(e) => setListTitle(e.target.value)}
-                icon={
-                  <Icon
-                    name="add"
-                    inverted
-                    circular
-                    link
-                    onClick={createListSubmit}
+              <Menu.Item>
+                <Input
+                  className="settingInput"
+                  value={listTitle}
+                  onChange={(e) => setListTitle(e.target.value)}
+                  icon={
+                    <Icon
+                      name="add"
+                      inverted
+                      circular
+                      link
+                      onClick={createListSubmit}
+                    />
+                  }
+                  placeholder="New List..."
+                />
+              </Menu.Item>
+
+              {todoData.todos.map((item, index) => {
+                return (
+                  <MenuListItem
+                    id={listId}
+                    setListId={setListId}
+                    itemId={item._id}
+                    text={item.title}
+                    subText={item.items.length}
+                    icon="list"
                   />
-                }
-                placeholder="New List..."
-              />
-            </Menu.Item>
-
-            {todoData.todos.map((item, index) => {
-              return (
-                <Menu.Item
-                  onClick={() => {
-                    setListId(item._id);
-                  }}
-                  active={listId === item._id}
-                  name={item.title}
-                  link
-                >
-                  <Label color="teal">{item.items.length}</Label>
-                  {item.title}
-                </Menu.Item>
-              );
-            })}
-          </Menu>
-        </Grid.Column>
-        <Grid.Column stretched width={13}>
-          <Segment inverted style={{ overflowY: "auto" }}>
-            {listId === null ? (
-              todoData.todos.map((item) => {
-                return <TodoSegment item={item} setId={setListId} />;
-              })
-            ) : (
-              <TodoSegment
-                item={todoData.todos.find((element) => element._id === listId)}
-                setId={setListId}
-              />
-            )}
-            <Segment
-              inverted
+                );
+              })}
+            </Menu>
+          </Grid.Column>
+          <Grid.Column stretched width={13} className="h-100 p-0">
+            <div
+              className="ui segment inverted h-100 w-100 b-0"
               style={{
-                position: "absolute",
-                bottom: 0,
-                right: 0,
-                left: 0,
-                width: "100%",
+                overflowY: "auto",
+                padding: "1em 1em 0 1em",
               }}
-              compact
             >
-              <Input
-                onChange={(e) => {
-                  setTodoText(e.target.value);
+              <Segment inverted basic>
+                <Header as="h1">
+                  <Icon name="list" />
+                  <Header.Content>
+                    {listId
+                      ? todoData.todos.find(function (item) {
+                          return item._id === listId;
+                        }).title
+                      : "All"}
+                  </Header.Content>
+                </Header>
+              </Segment>
+              {listId === null ? (
+                todoData.todos.map((item) => {
+                  return <TodoSegment item={item} />;
+                })
+              ) : (
+                <TodoSegment
+                  item={todoData.todos.find(
+                    (element) => element._id === listId
+                  )}
+                />
+              )}
+              <div
+                className="w-100 ui segment inverted"
+                style={{
+                  position: "sticky",
+                  bottom: 0,
+                  right: 0,
+                  left: 0,
+                  width: "100%",
+                  margin: 0,
+                  padding: "15px 0px",
                 }}
-                className="settingInput"
-                value={todoText}
-                icon={
-                  <Icon
-                    name="add"
-                    inverted
-                    circular
-                    link
-                    onClick={() => {
+              >
+                <Input
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
                       handleTodoSubmit();
-                    }}
-                  />
-                }
-                iconPosition="left"
-                fluid
-                placeholder="Add a task"
-              />
-            </Segment>
-          </Segment>
-        </Grid.Column>
-      </Grid>
+                    }
+                  }}
+                  onChange={(e) => {
+                    setTodoText(e.target.value);
+                  }}
+                  className="settingInput"
+                  value={todoText}
+                  icon={
+                    <Icon
+                      name="plus"
+                      inverted
+                      link
+                      onClick={handleTodoSubmit}
+                    />
+                  }
+                  style={{ padding: 0, margin: "5px 0px 15px 0px" }}
+                  iconPosition="left"
+                  fluid
+                  size="huge"
+                  placeholder="Add a task"
+                />
+              </div>
+            </div>
+          </Grid.Column>
+        </Grid>
+      </TodoContext.Provider>
     );
   }
-
-  // <TodoSegment
-  //   item={todoData.todos.find((element) => element._id === id)}
-  //   setId={setId}
-  // />
-
-  // return (
-  //   <Grid
-  //     vertical
-  //     style={{
-  //       display: "flex",
-  //       flex: 1,
-  //       height: "100%",
-  //       width: "100%",
-  //       backgroundImage: "linear-gradient(#667EEA, #764BA2)",
-  //       margin: 0,
-  //     }}
-  //   >
-  //     <Grid.Column
-  //       width={3}
-  //       style={{
-  //         backgroundColor: "#242426",
-  //         padding: 0,
-  //         maxHeight: "100%",
-  //         overflowY: "auto",
-  //         margin: 0,
-  //         webkitScrollbarDisplay: "none",
-  //       }}
-  //     >
-  //       <MenuListItem
-  //         id={id}
-  //         setId={setId}
-  //         itemId={null}
-  //         text="All"
-  //         subText={countAllTodoItems()}
-  //         icon="sort amount down"
-  //       />
-
-  //       {todoData.todos.map((item, index) => {
-  //         return (
-  //           <MenuListItem
-  //             id={id}
-  //             setId={setId}
-  //             itemId={item._id}
-  //             text={formatDateToText(item.date)}
-  //             subText={item.items.length}
-  //             icon="rebel"
-  //           />
-  //         );
-  //       })}
-  //     </Grid.Column>
-  //     <Grid.Column
-  //       width={13}
-  //       style={{ maxHeight: "100%", overflowY: "auto", padding: "20px 30px" }}
-  //     >
-  //       <Divider hidden />
-  //       {id === null ? (
-  //         todoData.todos.map((item) => {
-  //           return <TodoSegment item={item} setId={setId} />;
-  //         })
-  //       ) : (
-  //         <TodoSegment
-  //           item={todoData.todos.find((element) => element._id === id)}
-  //           setId={setId}
-  //         />
-  //       )}
-  //       <Divider hidden />
-  //       <div
-  //         style={{
-  //           position: "sticky",
-  //           height: 115,
-  //           padding: 15,
-  //           backgroundColor: "rgba(36, 36, 38, 0.9)",
-  //           bottom: -20,
-  //           right: 0,
-  //           left: 0,
-  //           width: "100%",
-  //         }}
-  //       >
-  //         <Input
-  //           onChange={(e) => {
-  //             setTodoText(e.target.value);
-  //           }}
-  //           value={todoText}
-  //           icon={
-  //             <Icon
-  //               name="add"
-  //               inverted
-  //               circular
-  //               link
-  //               onClick={() => {
-  //                 handleTodoSubmit();
-  //               }}
-  //             />
-  //           }
-  //           iconPosition="left"
-  //           fluid
-  //           placeholder="Add a task"
-  //         />
-  //       </div>
-  //     </Grid.Column>
-  //   </Grid>
-  // );
 }

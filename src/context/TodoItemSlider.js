@@ -17,7 +17,7 @@ export default () => {
   const [todoItem, setTodoItem] = useState(null);
 
   const openSidebar = (todo) => {
-    console.log(todo);
+    //console.log(todo);
     setTodoItem(todo);
   };
 
