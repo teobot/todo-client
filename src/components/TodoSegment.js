@@ -1,46 +1,38 @@
 import React, { useContext } from "react";
 
-import { Icon } from "semantic-ui-react";
+import { Icon, Label } from "semantic-ui-react";
 
 import { formatDateToText } from "../functions/general.functions";
 
 import { SideBarContext } from "../context/TodoItemSlider";
+import { TodoContext } from "../screens/MainScreen";
 
-export default function TodoSegment({ setId, item }) {
-  const { _id, date, items } = item;
-
-  const subText = formatDateToText(new Date(date));
-
+export default function TodoSegment({ item }) {
   const { openSidebar } = useContext(SideBarContext);
+  const { setListId, toggleComplete } = useContext(TodoContext);
 
   return (
     <>
       <div
-        style={{
-          backgroundColor: "#242426",
-          width: 150,
-          height: 32,
-          borderRadius: 5,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-evenly",
-          color: "white",
-          margin: "15px 0px",
-          fontSize: 12,
+        style={{ margin: "15px 0px", cursor: "pointer" }}
+        onClick={() => {
+          setListId(item._id);
         }}
       >
-        <span>&#8681;</span>
-        <span
-          onClick={() => {
-            setId(_id);
+        <Label
+          size="large"
+          style={{
+            backgroundColor: "#242426",
+            color: "#C55F5D",
           }}
-          style={{ cursor: "pointer" }}
         >
-          {subText}
-        </span>
-        <span>{items.length}</span>
+          <Icon name="angle down" />
+          {item.title}
+          <Label.Detail>{item.items.length}</Label.Detail>
+        </Label>
       </div>
-      {items.map((t) => {
+      {item.items.map((todo) => {
+        console.log("Rendering todo item");
         return (
           <div
             style={{
@@ -48,30 +40,32 @@ export default function TodoSegment({ setId, item }) {
               height: 60,
               width: "100%",
               backgroundColor: "#242426",
-              borderRadius: 5,
+              borderRadius: 3,
               margin: "3px 0px",
               alignItems: "center",
               padding: 10,
             }}
-            onClick={() => {
-              openSidebar(t);
-            }}
           >
             <Icon
+              onClick={() => {
+                toggleComplete(item._id, todo._id);
+              }}
               fitted
+              link
               size="big"
               inverted
-              name="circle outline"
-              style={{ color: "#939393" }}
+              name={todo.completed ? "check circle" : "circle outline"}
+              style={{ color: todo.completed ? "#788CDE" : "#939393" }}
             />
             <span
               style={{
                 fontSize: 15,
                 color: "white",
                 marginLeft: 20,
+                ...todo.completed ? {textDecoration: "line-through"} : {},
               }}
             >
-              {t.text}
+              {todo.text}
             </span>
           </div>
         );

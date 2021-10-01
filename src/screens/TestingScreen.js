@@ -65,7 +65,6 @@ export default function TestingScreen() {
     try {
       const todos = await getTodos();
       setTodoData(todos.data);
-      console.log(todos.data);
     } catch (error) {
       // TODO: handle error
     }

@@ -5,7 +5,7 @@ let DEV = false;
 const AxiosInstance = () => {
   const instance = axios.create({
     baseURL: DEV ? "http://localhost:3333/api/v1" : "https://teobot-todo-api.herokuapp.com/api/v1",
-    timeout: 5000,
+    timeout: 10000,
   });
 
   delete instance.defaults.headers.common["Accept"];
